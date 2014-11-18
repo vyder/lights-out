@@ -1,0 +1,26 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Helvetica Neue', Helvetica, 'Segoe UI', Arial, freesans, sans-serif;
+}
+
+#container {
+    width: 40vw;
+    margin: 0 auto;
+
+    margin-top: 40px;
+}
+
+/* Utilities */
+.pull-left {
+    float: left;
+}
+.pull-right {
+    float: right;
+}
+.clear {
+    clear: both;
+}
