@@ -26,7 +26,30 @@ var LightsOutGameGenerator = (function($, _, LightsOutGame) {
                 seedBoard.push(row);
             });
 
-            var seedGame = new LightsOutGame({
+            var seedGame = this._setupGameFor2DBoard(seedBoard);
+            seedGame.start();
+
+            // Simulate a random bunch of switches
+            var numSwitches = 0;
+            while( numSwitches === 0 ) {
+                numSwitches = _.random(dimensions.numRows * dimensions.numCols);
+            }
+
+            _(numSwitches).times(function() {
+                var cell = _.sample(cells);
+                seedGame.toggleCell(cell);
+            });
+
+            // return the seeded board
+            cb(null, seedBoard);
+        },
+
+        _setupGameFor2DBoard: function( board ) {
+            var dimensions = {
+                numRows: board.length,
+                numCols: board[0].length
+            };
+            return new LightsOutGame({
                 board: dimensions,
                 delegates: {
                     onStart: function() {
@@ -53,7 +76,7 @@ var LightsOutGameGenerator = (function($, _, LightsOutGame) {
                         if( row < 0 || col < 0 || row >= dimensions.numRows || col >= dimensions.numCols ) {
                             return {};
                         }
-                        return seedBoard[row][col];
+                        return board[row][col];
                     },
                     toggleCell: function(cell) {
                         if( !_.isEmpty(cell) ) {
@@ -62,20 +85,6 @@ var LightsOutGameGenerator = (function($, _, LightsOutGame) {
                     }
                 }
             });
-            seedGame.start();
-            // Simulate a random bunch of switches
-            var numSwitches = 0;
-            while( numSwitches === 0 ) {
-                numSwitches = _.random(dimensions.numRows * dimensions.numCols);
-            }
-
-            _(numSwitches).times(function() {
-                var cell = _.sample(cells);
-                seedGame.toggleCell(cell);
-            });
-
-            // return the seeded board
-            cb(null, seedBoard);
         }
     });
 
