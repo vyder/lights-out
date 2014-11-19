@@ -13,12 +13,20 @@ body {
 
     margin-top: 40px;
 }
-
+#container h1 {
+    font-size: 3vw;
+}
 #container h1 small {
-    margin-left: 2vw;
+    margin-left: 1vw;
     color: #AAA;
     font-weight: 200;
-    font-size: 0.8em;
+    font-size: 0.7em;
+}
+#container h1 small#play-again {
+    display: none;
+    color: #40A2F2;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 /* Utilities */

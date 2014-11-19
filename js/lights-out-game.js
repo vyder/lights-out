@@ -8,7 +8,8 @@ var LightsOutGame = (function($, _) {
         SETUP: 'SETUP',
         READY: 'READY',
         IN_PROGRESS: 'IN_PROGRESS',
-        COMPLETE: 'COMPLETE'
+        COMPLETE: 'COMPLETE',
+        DISPOSED: 'DISPOSED'
     };
     _.extend(Game.prototype, {
         initialize: function(opts) {
@@ -20,6 +21,7 @@ var LightsOutGame = (function($, _) {
             this.delegates = {
                 onStart:          opts.delegates.onStart,
                 onComplete:       opts.delegates.onComplete,
+                onDispose:        opts.delegates.onDispose,
                 getCoordsForCell: opts.delegates.getCoordsForCell,
                 isActiveCell:     opts.delegates.isActiveCell,
                 getCell:          opts.delegates.getCell,
@@ -70,6 +72,12 @@ var LightsOutGame = (function($, _) {
                 }
             }
             return true;
+        },
+        dispose: function() {
+            this.state = STATES.DISPOSED;
+            this.delegates.onDispose();
+            this.board = null;
+            this.delegates = null;
         },
         _validateStateOrError: function(states) {
             if( !_.contains(states, this.state) ) {

@@ -26,30 +26,36 @@ var LightsOutGameGenerator = (function($, _, LightsOutGame) {
                 seedBoard.push(row);
             });
 
-            var seedGame = this._setupGameFor2DBoard(seedBoard);
-            seedGame.start();
+            this._setupGameFor2DBoard(seedBoard, function(error, seedGame) {
+                if( error ) {
+                    cb(error);
+                }
 
-            // Simulate a random bunch of switches
-            var numSwitches = 0;
-            while( numSwitches === 0 ) {
-                numSwitches = _.random(dimensions.numRows * dimensions.numCols);
-            }
+                seedGame.start();
 
-            _(numSwitches).times(function() {
-                var cell = _.sample(cells);
-                seedGame.toggleCell(cell);
+                // Simulate a random bunch of switches
+                var numSwitches = 0;
+                while( numSwitches === 0 ) {
+                    // Make at least 10 moves
+                    numSwitches = _.random(10, dimensions.numRows * dimensions.numCols);
+                }
+
+                _(numSwitches).times(function() {
+                    var cell = _.sample(cells);
+                    seedGame.toggleCell(cell);
+                });
+
+                // return the seeded board
+                cb(null, seedBoard);
             });
-
-            // return the seeded board
-            cb(null, seedBoard);
         },
 
-        _setupGameFor2DBoard: function( board ) {
+        _setupGameFor2DBoard: function( board, cb ) {
             var dimensions = {
                 numRows: board.length,
                 numCols: board[0].length
             };
-            return new LightsOutGame({
+            cb(null, new LightsOutGame({
                 board: dimensions,
                 delegates: {
                     onStart: function() {
@@ -84,7 +90,7 @@ var LightsOutGameGenerator = (function($, _, LightsOutGame) {
                         }
                     }
                 }
-            });
+            }));
         }
     });
 
