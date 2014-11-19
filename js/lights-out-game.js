@@ -19,7 +19,7 @@ var LightsOutGame = (function($, _) {
             };
             this.delegates = {
                 onStart:          opts.delegates.onStart,
-                onComplete:     opts.delegates.onComplete,
+                onComplete:       opts.delegates.onComplete,
                 getCoordsForCell: opts.delegates.getCoordsForCell,
                 isActiveCell:     opts.delegates.isActiveCell,
                 getCell:          opts.delegates.getCell,
@@ -64,7 +64,7 @@ var LightsOutGame = (function($, _) {
             for(var row = 0; row < this.board.numRows; row++) {
                 for(var col = 0; col < this.board.numCols; col++) {
                     var cell = this.delegates.getCell(row, col);
-                    if( !this.delegates.isActiveCell(cell) ) {
+                    if( this.delegates.isActiveCell(cell) ) {
                         return false;
                     }
                 }
