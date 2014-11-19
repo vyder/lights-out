@@ -74,7 +74,7 @@ $(document).ready(function() {
 
     LightsOutGameGenerator.generateBoard(dimensions, function(error, generatedBoard) {
         if( error ) {
-            throw new Error("Generator broke with: " + e.message);
+            throw new Error("Generator broke with: " + error.message);
         }
         buildGrid($('#lights'), generatedBoard);
         game.start();
