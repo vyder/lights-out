@@ -21,11 +21,17 @@
 
     <script src="js/lights-out-game.js"></script>
     <script src="js/lights-out-game-generator.js"></script>
+    <script src="js/lights-out-game-solve-simulator.js"></script>
     <script src="js/main.js"></script>
 </head>
 <body>
     <div id="container">
-        <h1>Lights Out <small>Moves: <span id="moves">--</span></small> <small id="play-again">Play Again?</small></h1>
+        <h1>
+            Lights Out
+            <small>Moves: <span id="moves">--</span></small>
+            <small id="play-again" class="action">Play Again?</small>
+            <small id="give-up" class="action">Give Up?</small>
+        </h1>
         <div id="lights" class="grid"></div>
     </div>
 

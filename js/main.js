@@ -1,4 +1,6 @@
 $(document).ready(function() {
+    var giveUpInNumMoves = 20;
+
     var dimensions = {
         numRows: 5,
         numCols: 5
@@ -30,6 +32,9 @@ $(document).ready(function() {
 
         var updateMoveCounter = function(num) {
             $('#moves').text(num);
+            if( num > giveUpInNumMoves ) {
+                $('#give-up').show();
+            }
         };
 
         var game = new LightsOutGame({
@@ -44,6 +49,7 @@ $(document).ready(function() {
                     });
                 },
                 onComplete: function() {
+                    $('#give-up').hide();
                     var alertTitle = "You won!";
                     var alertMessage = "You completed the game in " + $('#moves').text() + " moves.";
                     sweetAlert(alertTitle, alertMessage, "success");
@@ -53,20 +59,20 @@ $(document).ready(function() {
                     // Destroy all the .cell elements
                     $('.cell').remove();
                 },
-                getCoordsForCell: function(cell) {
+                onGetCoordsForCell: function(cell) {
                     var coords = _.rest($(cell).attr('class').split(" "));
                     var row = parseInt(coords[0].substring(3));
                     var col = parseInt(coords[1].substring(3));
 
                     return { row: row, col: col };
                 },
-                isActiveCell: function(cell) {
+                onIsActiveCell: function(cell) {
                     return $(cell).hasClass('glow');
                 },
-                getCell: function(row, col) {
+                onGetCell: function(row, col) {
                     return $('.cell.row' + row + '.col' + col);
                 },
-                toggleCell: function(cell) {
+                onToggleCell: function(cell) {
                     $(cell).toggleClass('glow');
                 }
             }
@@ -86,22 +92,62 @@ $(document).ready(function() {
     };
 
     var theGame = {}
-    var resetGame = function() {
+    var resetGame = function(tryNum) {
+        tryNum = tryNum || 1;
+        if(tryNum > 1 && tryNum <= 3) {
+            console.log("Trying again (#" + tryNum + ")...");
+        } else if (tryNum > 3) {
+            // Tried to generate a board three times
+            // and failed miserably. Best to stop trying now
+            throw new Error("Couldn't generate a board for whatever reason.");
+        }
         LightsOutGameGenerator.generateBoard(dimensions, function(error, generatedBoard) {
             if( error ) {
-                throw new Error("Generator broke with: " + error.message);
+                console.log("Generator broke with: " + error.message);
+                tryNum += 1;
+                resetGame(tryNum);
             }
             buildGrid($('#lights'), dimensions);
             theGame = createNewGame(dimensions);
             populateGame(theGame, generatedBoard);
-            theGame.start();
+
+            var simulator = new LightsOutSolveSimulator(theGame, {});
+            simulator.solve();
+
+            // theGame.start();
             $('#play-again').hide();
+        });
+    };
+
+    var giveUp = function(game) {
+        // First prevent user from clicking on any more
+        // cells
+        $('.cell').unbind( "click" );
+
+        // Create a new simulator for this game
+        var simulator = new LightsOutSolveSimulator(game, {});
+
+        // Kick off the solve
+        simulator.solve(function(err, result) {
+            $('#give-up').hide();
+            if(err) {
+                sweetAlert("Oops...", "Something went wrong while I was trying to solve the game " +
+                                      "for you. Rest assured that we're doing absolutely nothing " +
+                                      "to fix it.",
+                           "error");
+                $('#play-again').show();
+                throw new Error("Solver failed with: " + err.message);
+            }
         });
     };
 
     $('#play-again').click(function() {
         theGame.dispose();
         resetGame();
+    });
+
+    $('#give-up').click(function() {
+        giveUp(theGame);
     });
 
     // Kick off the first game

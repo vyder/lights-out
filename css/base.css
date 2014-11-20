@@ -22,7 +22,7 @@ body {
     font-weight: 200;
     font-size: 0.7em;
 }
-#container h1 small#play-again {
+#container h1 small.action {
     display: none;
     color: #40A2F2;
     text-decoration: underline;

@@ -64,27 +64,32 @@ var LightsOutGameGenerator = (function($, _, LightsOutGame) {
                     },
                     onComplete: function() {
                         // should never get here
-                        cb(new Error("whaaaa...?"));
+                        cb(new Error("Board generated empty."));
+
+                        // edit: weeeell it does get here if the
+                        // board generates empty...which seems to
+                        // occur frequently. I'll just say:
+                        // #TODO
                     },
-                    getCoordsForCell: function(cell) {
+                    onGetCoordsForCell: function(cell) {
                         if( _.isEmpty(cell) ) {
                             return {};
                         }
                         return { row: cell.row, col: cell.col};
                     },
-                    isActiveCell: function(cell) {
+                    onIsActiveCell: function(cell) {
                         if( _.isEmpty(cell) ) {
                             return false;
                         }
                         return cell.value === 1;
                     },
-                    getCell: function(row, col) {
+                    onGetCell: function(row, col) {
                         if( row < 0 || col < 0 || row >= dimensions.numRows || col >= dimensions.numCols ) {
                             return {};
                         }
                         return board[row][col];
                     },
-                    toggleCell: function(cell) {
+                    onToggleCell: function(cell) {
                         if( !_.isEmpty(cell) ) {
                             cell.value = cell.value ? 0 : 1;
                         }

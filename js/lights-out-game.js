@@ -13,39 +13,48 @@ var LightsOutGame = (function($, _) {
     };
     _.extend(Game.prototype, {
         initialize: function(opts) {
-            this.state = STATES.SETUP;
-            this.board = {
+            this._state = STATES.SETUP;
+            this._board = {
                 numRows: opts.board.numRows,
                 numCols: opts.board.numCols
             };
-            this.delegates = {
-                onStart:          opts.delegates.onStart,
-                onComplete:       opts.delegates.onComplete,
-                onDispose:        opts.delegates.onDispose,
-                getCoordsForCell: opts.delegates.getCoordsForCell,
-                isActiveCell:     opts.delegates.isActiveCell,
-                getCell:          opts.delegates.getCell,
-                toggleCell:       opts.delegates.toggleCell
+            this._delegates = {
+                onStart:            opts.delegates.onStart,
+                onComplete:         opts.delegates.onComplete,
+                onDispose:          opts.delegates.onDispose,
+                onGetCoordsForCell: opts.delegates.onGetCoordsForCell,
+                onIsActiveCell:     opts.delegates.onIsActiveCell,
+                onGetCell:          opts.delegates.onGetCell,
+                onToggleCell:       opts.delegates.onToggleCell
             };
-            this.state = STATES.READY;
+            this._state = STATES.READY;
         },
         start: function() {
             this._validateStateOrError([ STATES.READY ]);
-            this.delegates.onStart();
-            this.state = STATES.IN_PROGRESS;
+            this._delegates.onStart();
+            this._state = STATES.IN_PROGRESS;
+        },
+        getCoordsForCell: function(cell) {
+            return this._delegates.onGetCoordsForCell(cell);
+        },
+        isActiveCell: function(cell) {
+            return this._delegates.onIsActiveCell(cell);
+        },
+        getCell: function(row, col) {
+            return this._delegates.onGetCell(row, col);
         },
         toggleCell: function(cell) {
             this._validateStateOrError([ STATES.IN_PROGRESS ]);
-            this.delegates.toggleCell(cell);
+            this._delegates.onToggleCell(cell);
             this.toggleNeighbors(cell);
             if( this.hasFinished() ) {
-                this.delegates.onComplete();
-                this.state = STATES.COMPLETE;
+                this._delegates.onComplete();
+                this._state = STATES.COMPLETE;
             }
         },
         toggleNeighbors: function(cell) {
             this._validateStateOrError([ STATES.IN_PROGRESS ]);
-            var coords = this.delegates.getCoordsForCell(cell);
+            var coords = this.getCoordsForCell(cell);
             var row = coords.row;
             var col = coords.col;
 
@@ -56,33 +65,46 @@ var LightsOutGame = (function($, _) {
                 { row: row, col: col - 1 }
             ];
             _.each(neighborCoords, function(n) {
-                var neighborCell = this.delegates.getCell(n.row, n.col);
-                this.delegates.toggleCell(neighborCell);
+                var neighborCell = this.getCell(n.row, n.col);
+                this._delegates.onToggleCell(neighborCell);
             }, this);
         },
         hasFinished: function() {
             this._validateStateOrError([ STATES.IN_PROGRESS ]);
 
-            for(var row = 0; row < this.board.numRows; row++) {
-                for(var col = 0; col < this.board.numCols; col++) {
-                    var cell = this.delegates.getCell(row, col);
-                    if( this.delegates.isActiveCell(cell) ) {
+            for(var row = 0; row < this._board.numRows; row++) {
+                for(var col = 0; col < this._board.numCols; col++) {
+                    var cell = this.getCell(row, col);
+                    if( this.isActiveCell(cell) ) {
                         return false;
                     }
                 }
             }
             return true;
         },
+        getDimensions: function() {
+            return {
+                numRows: this._board.numRows,
+                numCols: this._board.numCols
+            };
+        },
         dispose: function() {
-            this.state = STATES.DISPOSED;
-            this.delegates.onDispose();
-            this.board = null;
-            this.delegates = null;
+            if( this._validateState([ STATES.DISPOSED ]) ) {
+                // Been had disposed
+                return;
+            }
+            this._state = STATES.DISPOSED;
+            this._delegates.onDispose();
+            this._board = null;
+            this._delegates = null;
         },
         _validateStateOrError: function(states) {
-            if( !_.contains(states, this.state) ) {
-                throw new Error("LightsOutGame is in an invalid state. Expected: " + states.join(",") + ". Got: " + this.state);
+            if( !this._validateState(states) ) {
+                throw new Error("LightsOutGame is in an invalid state. Expected: " + states.join(",") + ". Got: " + this._state);
             }
+        },
+        _validateState: function(states) {
+            return _.contains(states, this._state);
         }
     });
 
