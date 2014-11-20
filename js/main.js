@@ -44,7 +44,9 @@ $(document).ready(function() {
                     });
                 },
                 onComplete: function() {
-                    alert("You won in " + $('#moves').text() + " moves!");
+                    var alertTitle = "You won!";
+                    var alertMessage = "You completed the game in " + $('#moves').text() + " moves.";
+                    sweetAlert(alertTitle, alertMessage, "success");
                     $('#play-again').show();
                 },
                 onDispose: function() {
