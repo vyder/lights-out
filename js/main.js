@@ -46,7 +46,11 @@ $(document).ready(function() {
                 onComplete: function() {
                     var alertTitle = "You won!";
                     var alertMessage = "You completed the game in " + $('#moves').text() + " moves.";
-                    sweetAlert(alertTitle, alertMessage, "success");
+                    sweetAlert({
+                        title: alertTitle,
+                        text: alertMessage,
+                        imageUrl: "img/crown.png"
+                    });
                     $('#play-again').show();
                 },
                 onDispose: function() {
